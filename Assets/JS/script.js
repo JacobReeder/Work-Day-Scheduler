@@ -1,0 +1,84 @@
+
+ //Time and date format 
+$("#currentDay").text(moment().format('dddd, MMMM Do'));
+var savedTasks = new Array();
+   
+//Function to access, create, and stylize scheduler columns
+ function createColumns() {
+    var plannerContainer = $("#dailyPlannerContainer");
+    for ( var i=0; i<=9; i++ ) {
+       var columnEl = document.createElement("column-div");
+       columnEl.className = "row"
+       columnEl.id = i+9;
+       plannerContainer.append(newColumn);
+    }
+
+     for (var i=9; i<18; i++) {
+        currentTime = moment().format('HH')
+        var colEl = document.createElement("span");
+        var inDiv = $("#" + i);
+        var colTime = document.createElement("div");
+        colTime.className = "col-1 hour";
+        colTime.id += i
+        colTime.textContent = moment(i, ["HH.mm"]).format("h A");
+        colEl.setAttribute("data-span-time-id", (i-9).toString());
+
+        if (currentTime>i) {
+            colEl.className = "col-10 past";
+        }
+        else if (currentTime === i) {
+            colEl.className = "col-10 present";
+        }
+        else { 
+            colEl.className = "col-10 future";
+        }
+        colEl.className = colEl.className + " task";
+        
+
+        var saveDiv = document.createElement("div");
+        var newEl  = document.createElement("i");
+        newEl.className = "fa fa-save my-4 mx-1"
+        newEl.setAttribute("data-time-id", (i-9).toString());
+        saveDiv.className = "col-1 saveBtn"
+        saveDiv.id = i;
+
+        try {
+            colEl.innerText = savedTasks.find( ({ timeID }) => timeID === (i-9).toString()).task;
+        }
+        catch (e) {
+            colEl.innerText = '';
+        }
+    
+        saveDiv.append(newEl)
+        inDiv.append(colTime);
+        inDiv.append(colEl);
+        inDiv.append(saveDiv);
+
+    }
+}
+
+$(".container").on("click", "i", function(){
+    var timeDis = $(this).attr("data-time-id");
+    var taskWord = $(`[data-span-time-id=${timeID}]`).text()
+    saveTasks(timeDis, taskWord);
+});
+
+$(".container").on("click", "span", function() {
+    var taskWord = $(this) .text() .trim();
+    var timeDis = $(this).attr('data-span-time-id');
+    var textI = $("<textarea>").addClass($(this).attr("class")).val(taskWord);
+    textI.attr("data-span-time-id", timeDis)
+    $(this).replaceWith(textInput)
+    textI.trigger("focus");
+   
+});
+
+
+createColumns();
+
+
+
+
+
+
+
