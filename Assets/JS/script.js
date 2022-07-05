@@ -1,16 +1,16 @@
 
  //Time and date format 
 $("#currentDay").text(moment().format('dddd, MMMM Do'));
-var savedTasks = new Array();
+var saveTask = new Array();
    
 //Function to access, create, and stylize scheduler columns
  function createColumns() {
-    var plannerContainer = $("#dailyPlannerContainer");
+    var plannerContainer = $(".container");
     for ( var i=0; i<=9; i++ ) {
-       var columnEl = document.createElement("column-div");
+       var columnEl = document.createElement("div");
        columnEl.className = "row"
        columnEl.id = i+9;
-       plannerContainer.append(newColumn);
+       plannerContainer.append(columnEl);
     }
 
      for (var i=9; i<18; i++) {
@@ -43,7 +43,7 @@ var savedTasks = new Array();
         saveDiv.id = i;
 
         try {
-            colEl.innerText = savedTasks.find( ({ timeID }) => timeID === (i-9).toString()).task;
+            colEl.innerText = saveTask.find( ({ timeDis }) => timeDis === (i-9).toString()).task;
         }
         catch (e) {
             colEl.innerText = '';
@@ -59,8 +59,8 @@ var savedTasks = new Array();
 
 $(".container").on("click", "i", function(){
     var timeDis = $(this).attr("data-time-id");
-    var taskWord = $(`[data-span-time-id=${timeID}]`).text()
-    saveTasks(timeDis, taskWord);
+    var taskWord = $(`[data-span-time-id=${timeDis}]`).text()
+    saveSch(timeDis, taskWord);
 });
 
 $(".container").on("click", "span", function() {
@@ -68,12 +68,51 @@ $(".container").on("click", "span", function() {
     var timeDis = $(this).attr('data-span-time-id');
     var textI = $("<textarea>").addClass($(this).attr("class")).val(taskWord);
     textI.attr("data-span-time-id", timeDis)
-    $(this).replaceWith(textInput)
+    $(this).replaceWith(textI)
     textI.trigger("focus");
    
 });
 
+$(".container").on("blur", "textarea", function() { 
+    var taskWord = $(this).val();
+    var timeDis= $(this).attr('data-span-time-id');
+    var tSpan = $("<span>")
+    .addClass($(this).attr("class"))
+    .text(taskWord);
+   
+    tSpan.attr("data-span-time-id", timeDis)
+  
+    $(this).replaceWith(tSpan);
 
+});
+
+function saveSch(timeDis, task) {
+    try {
+      var newObj = saveTask.find(x => x.timeID === timeDis); 
+      newObj.task = task;
+    }
+    catch (e) {
+        var newTask = {};
+        newTask.timeDis = timeDis;
+        newTask.task = task;
+        saveTask.push(newTask);
+    }
+    try {
+        localStorage.setItem('dailyTasks', JSON.stringify(saveTask));
+    }
+    catch (e) {
+        alert("Something went wrong! Please try again.")
+    }
+    alert("Task saved!")
+}
+
+function loadSch() {
+    if (localStorage.dailyTasks) {
+        saveTask = JSON.parse(localStorage.getItem('dailyTasks'))
+    }
+}
+
+loadSch();
 createColumns();
 
 
